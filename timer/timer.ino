@@ -31,9 +31,12 @@ void setup(){
   lcd.init();
   lcd.backlight();
   lcd.clear();
+
+  lcd.setCursor(0,0);
+  lcd.print("TIMER: ");
 }
 
-void loop(){
+void drawAnimation(){
   makeRowFill(lcd_row, n);
 
   // Dibujamos la mitad izquierda una sola vez
@@ -74,4 +77,44 @@ void loop(){
     }
   }
 
+}
+
+
+enum Timer_Status {
+  STATE_IDLE,
+  STATE_TIMER
+};
+
+
+int tiempo_seg = 61; 
+
+String format_time(int time) {
+  int minute = time / 60;
+  int seg = time % 60;
+
+  return ( (minute < 10 ? "0" : "") + String(minute) + ":" + (seg < 10 ? "0" : "") + String(seg) );
+}
+
+
+unsigned long previousMillis = 0;
+Timer_Status status = STATE_IDLE; 
+
+void loop(){
+  unsigned long currentTime = millis();
+
+  switch(status) {
+    case STATE_IDLE:
+    if (currentTime - previousMillis >= 1000) {
+      status = STATE_TIMER;
+      previousMillis = currentTime;
+    }
+    break;
+    
+    case STATE_TIMER: 
+    lcd.setCursor(8,0);
+    lcd.print(format_time(tiempo_seg--));
+    status = STATE_IDLE;
+    break;
+    
+  }
 }
